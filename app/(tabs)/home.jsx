@@ -8,11 +8,12 @@ import EmptyState from "../../components/empty-state";
 import { getAllPosts, getLatestPosts } from "../../lib/appwrite";
 import useAppwrite from "../../lib/appwrite/use-appwrite";
 import VideoCard from "../../components/video-card";
+import { useGlobalContext } from "../../context/global-provider";
 
 export default function Home() {
   const { data: posts, refetch } = useAppwrite(getAllPosts);
   const { data: latestPosts } = useAppwrite(getLatestPosts);
-
+  const { user } = useGlobalContext();
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
@@ -32,7 +33,7 @@ export default function Home() {
             <View className="justify-between items-start flex-row mb-6">
               <View>
                 <Text className="font-pmedium text-sm text-gray-100">Welcome Back</Text>
-                <Text className="text-2xl font-psemibold text-white">Adithyan 2</Text>
+                <Text className="text-2xl font-psemibold text-white">{user?.username}</Text>
               </View>
 
               <View className="mt-1.5">
