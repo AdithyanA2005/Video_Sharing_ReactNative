@@ -5,6 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../constants";
 import CustomButton from "../components/custom-button";
 import { useGlobalContext } from "../context/global-provider";
+import Spinner from "../components/spinner";
 
 export default function App() {
   const { isLoading, isLogged } = useGlobalContext();
@@ -36,11 +37,17 @@ export default function App() {
             Where creativity meets innovation: Embark on the journey of creativity with Aora
           </Text>
 
-          <CustomButton
-            title="Continue with Email"
-            onPress={() => router.push("/sign-in")}
-            containerClassNames="mt-7 w-full"
-          />
+          <View className="w-full mt-8">
+            {isLoading ? (
+              <Spinner />
+            ) : (
+              <CustomButton
+                title="Continue with Email"
+                onPress={() => router.push("/sign-in")}
+                containerClassNames="w-full"
+              />
+            )}
+          </View>
         </View>
       </ScrollView>
 
