@@ -7,9 +7,10 @@ import { getBookmarkedPosts } from "../../lib/appwrite";
 import useAppwrite from "../../lib/appwrite/use-appwrite";
 import VideoCard from "../../components/video-card";
 import { useGlobalContext } from "../../context/global-provider";
+import { Redirect } from "expo-router";
 
 export default function Bookmark() {
-  const { user } = useGlobalContext();
+  const { user, isLogged, isLoading: isUserLoading } = useGlobalContext();
   const { data: posts, refetch, isLoading } = useAppwrite(() => getBookmarkedPosts(user.$id));
   const [refreshing, setRefreshing] = useState(false);
 
@@ -18,6 +19,8 @@ export default function Bookmark() {
     await refetch();
     setRefreshing(false);
   };
+
+  if (!isUserLoading && !isLogged) return <Redirect href="/home" />;
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -31,7 +34,7 @@ export default function Bookmark() {
               <Text className="text-2xl font-psemibold text-white">Saved Videos</Text>
             </View>
 
-            <SearchInput />
+            <SearchInput isBookmarksOnly={true} />
           </View>
         )}
         ListEmptyComponent={() => (
@@ -39,7 +42,7 @@ export default function Bookmark() {
             <EmptyState
               title="No videos found"
               subtitle="Be the first one to upload a video"
-              isLoading={isLoading}
+              isLoading={isLoading || isUserLoading}
             />
           </View>
         )}

@@ -3,14 +3,18 @@ import { FlatList, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import SearchInput from "../../components/search-input";
 import EmptyState from "../../components/empty-state";
-import { searchPosts } from "../../lib/appwrite";
+import { searchBookmarkedPosts, searchPosts } from "../../lib/appwrite";
 import useAppwrite from "../../lib/appwrite/use-appwrite";
 import VideoCard from "../../components/video-card";
 import { useLocalSearchParams } from "expo-router";
+import { useGlobalContext } from "../../context/global-provider";
 
 export default function Search() {
-  const { query } = useLocalSearchParams();
-  const { data: posts, refetch } = useAppwrite(() => searchPosts(query));
+  const { user } = useGlobalContext();
+  const { query, scope } = useLocalSearchParams();
+  const { data: posts, refetch } = useAppwrite(() =>
+    scope === "bookmarks" ? searchBookmarkedPosts(query, user.$id) : searchPosts(query),
+  );
 
   useEffect(() => {
     refetch();
