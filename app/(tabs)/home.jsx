@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Alert, FlatList, Image, RefreshControl, Text, View } from "react-native";
+import { useState } from "react";
+import { FlatList, Image, RefreshControl, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../../constants";
 import SearchInput from "../../components/search-input";
@@ -9,7 +9,6 @@ import { getAllPosts, getLatestPosts } from "../../lib/appwrite";
 import useAppwrite from "../../lib/appwrite/use-appwrite";
 import VideoCard from "../../components/video-card";
 import { useGlobalContext } from "../../context/global-provider";
-import Spinner from "../../components/spinner";
 
 export default function Home() {
   const { data: latestPosts, isLoading: isLatestPostsLoading } = useAppwrite(getLatestPosts);

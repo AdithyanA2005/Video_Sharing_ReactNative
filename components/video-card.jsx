@@ -1,17 +1,28 @@
 import { useState } from "react";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Image, Text, TouchableOpacity, View } from "react-native";
 import { icons } from "../constants";
 import { ResizeMode, Video } from "expo-av";
+import { bookmarkVideo, unBookmarkVideo } from "../lib/appwrite";
+import { useGlobalContext } from "../context/global-provider";
 
-export default function VideoCard({
-  video: {
-    title,
-    thumbnail,
-    video,
-    creator: { username, avatar },
-  },
-}) {
+export default function VideoCard({ video: { creator, ...video } }) {
+  const { user } = useGlobalContext();
   const [play, setPlay] = useState(false);
+  const [isBookmarked, setIsBookmarked] = useState(() => {
+    const usersWhoBookmarkedVideo = video.bookmarkedBy;
+    return usersWhoBookmarkedVideo.some((bookmarkedUser) => bookmarkedUser.$id === user.$id);
+  });
+
+  const handleBookmark = async () => {
+    setIsBookmarked((prev) => !prev);
+    try {
+      if (isBookmarked) await unBookmarkVideo(user.$id, video.$id);
+      else await bookmarkVideo(user.$id, video.$id);
+    } catch (error) {
+      setIsBookmarked((prev) => !prev);
+      Alert.alert("Error", error.message);
+    }
+  };
 
   return (
     <View className="flex-col items-center px-4 mb-14">
@@ -19,7 +30,7 @@ export default function VideoCard({
         <View className="justify-center items-center flex-row flex-1">
           <View className="w-[46px] h-[46px] rounded-lg border border-secondary justify-center items-center p-0.5">
             <Image
-              source={{ uri: avatar }}
+              source={{ uri: creator.avatar }}
               className="w-full h-full rounded-lg"
               resizeMode="cover"
             />
@@ -27,22 +38,29 @@ export default function VideoCard({
 
           <View className="justify-center flex-1 ml-3 gap-y-1">
             <Text className="text-white font-psemibold text-sm" numberOfLines={1}>
-              {title}
+              {video.title}
             </Text>
             <Text className="text-gray-100 font-pregular text-xs" numberOfLines={1}>
-              {username}
+              {creator.username}
             </Text>
           </View>
         </View>
 
-        <View className="pt-2">
-          <Image source={icons.menu} className="w-5 h-5" resizeMode="contain" />
+        <View className="pt-3">
+          <TouchableOpacity onPress={handleBookmark}>
+            <Image
+              source={icons.bookmark}
+              tintColor={isBookmarked ? "#FFA001" : null}
+              className="w-4 h-5"
+              resizeMode="stretch"
+            />
+          </TouchableOpacity>
         </View>
       </View>
 
       {play ? (
         <Video
-          source={{ uri: video }}
+          source={{ uri: video.video }}
           className="w-full h-60 rounded-xl mt-3"
           resizeMode={ResizeMode.CONTAIN}
           useNativeControls={true}
@@ -58,7 +76,7 @@ export default function VideoCard({
           className="w-full h-60 rounded-xl mt-3 relative justify-center items-center"
         >
           <Image
-            source={{ uri: thumbnail }}
+            source={{ uri: video.thumbnail }}
             className="w-full h-full rounded-xl mt-3"
             resizeMode="cover"
           />
