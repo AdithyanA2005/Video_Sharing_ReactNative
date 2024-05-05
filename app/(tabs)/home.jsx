@@ -9,10 +9,11 @@ import { getAllPosts, getLatestPosts } from "../../lib/appwrite";
 import useAppwrite from "../../lib/appwrite/use-appwrite";
 import VideoCard from "../../components/video-card";
 import { useGlobalContext } from "../../context/global-provider";
+import Spinner from "../../components/spinner";
 
 export default function Home() {
-  const { data: posts, refetch } = useAppwrite(getAllPosts);
-  const { data: latestPosts } = useAppwrite(getLatestPosts);
+  const { data: latestPosts, isLoading: isLatestPostsLoading } = useAppwrite(getLatestPosts);
+  const { data: posts, refetch, isLoading: isPostsLoading } = useAppwrite(getAllPosts);
   const { user } = useGlobalContext();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -43,14 +44,24 @@ export default function Home() {
 
             <SearchInput />
 
-            <View className="w-full flex-1 pt-5 pb-8">
-              <Text className="mb-3 font-pregular text-sm text-gray-100">Latest Videos</Text>
-              <Trending posts={latestPosts ?? []} />
-            </View>
+            {latestPosts.length !== 0 && !isLatestPostsLoading ? (
+              <View className="w-full flex-1 pt-5 pb-8">
+                <Text className="mb-3 font-pregular text-sm text-gray-100">Latest Videos</Text>
+                <Trending posts={latestPosts} />
+              </View>
+            ) : null}
           </View>
         )}
         ListEmptyComponent={() => (
-          <EmptyState title="No videos found" subtitle="Be the first one to upload a video" />
+          <View>
+            {isPostsLoading || isLatestPostsLoading ? (
+              <View className="mt-16">
+                <Spinner size={45} />
+              </View>
+            ) : (
+              <EmptyState title="No videos found" subtitle="Be the first one to upload a video" />
+            )}
+          </View>
         )}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       />
