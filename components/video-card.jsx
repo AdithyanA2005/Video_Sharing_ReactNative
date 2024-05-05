@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Alert, Image, Text, TouchableOpacity, View } from "react-native";
 import { icons } from "../constants";
 import { ResizeMode, Video } from "expo-av";
-import { bookmarkVideo, unBookmarkVideo } from "../lib/appwrite";
+import { bookmarkVideo, deleteVideo, unBookmarkVideo } from "../lib/appwrite";
 import { useGlobalContext } from "../context/global-provider";
+import Dialog from "./dialog";
 
 export default function VideoCard({ video: { creator, ...video } }) {
   const { user } = useGlobalContext();
@@ -20,6 +21,15 @@ export default function VideoCard({ video: { creator, ...video } }) {
       else await bookmarkVideo(user.$id, video.$id);
     } catch (error) {
       setIsBookmarked((prev) => !prev);
+      Alert.alert("Error", error.message);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteVideo(video.$id, user.$id);
+      Alert.alert("Success", "Video deleted successfully");
+    } catch (error) {
       Alert.alert("Error", error.message);
     }
   };
@@ -46,12 +56,22 @@ export default function VideoCard({ video: { creator, ...video } }) {
           </View>
         </View>
 
-        <View className="pt-3">
+        <View className="pt-3 items-end flex-row">
+          {user?.$id === creator.$id ? (
+            <Dialog
+              title="Delete Video"
+              description="Do you want to delete this video? You cannot undo this action."
+              action={handleDelete}
+            >
+              <Image source={icons.bin} className="w-7 h-7 mr-3" resizeMode="contain" />
+            </Dialog>
+          ) : null}
+
           <TouchableOpacity onPress={handleBookmark}>
             <Image
               source={icons.bookmark}
               tintColor={isBookmarked ? "#FFA001" : null}
-              className="w-4 h-5"
+              className="w-4 h-6"
               resizeMode="stretch"
             />
           </TouchableOpacity>
