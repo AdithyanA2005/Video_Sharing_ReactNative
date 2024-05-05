@@ -5,14 +5,14 @@ import { getUserPosts, signOut } from "../../lib/appwrite";
 import useAppwrite from "../../lib/appwrite/use-appwrite";
 import VideoCard from "../../components/video-card";
 import { useGlobalContext } from "../../context/global-provider";
-import { Redirect, router } from "expo-router";
+import { router } from "expo-router";
 import { icons } from "../../constants";
 import InfoBox from "../../components/info-box";
 
 export default function Profile() {
   const { user, setUser, isLoading, isLogged, setIsLogged } = useGlobalContext();
 
-  const { data: posts } = useAppwrite(() => getUserPosts(user.$id));
+  const { data: posts, isLoading: isPostsLoading } = useAppwrite(() => getUserPosts(user.$id));
 
   const logout = async () => {
     await signOut();
@@ -55,7 +55,11 @@ export default function Profile() {
           </View>
         )}
         ListEmptyComponent={() => (
-          <EmptyState title="No videos found" subtitle="No videos found for this search query" />
+          <EmptyState
+            title="No videos found"
+            subtitle="No videos found for this search query"
+            isLoading={isLogged || isPostsLoading || isLoading}
+          />
         )}
       />
     </SafeAreaView>

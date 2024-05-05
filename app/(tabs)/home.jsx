@@ -54,13 +54,11 @@ export default function Home() {
         )}
         ListEmptyComponent={() => (
           <View>
-            {isPostsLoading || isLatestPostsLoading ? (
-              <View className="mt-16">
-                <Spinner size={45} />
-              </View>
-            ) : (
-              <EmptyState title="No videos found" subtitle="Be the first one to upload a video" />
-            )}
+            <EmptyState
+              title="No videos found"
+              subtitle="Be the first one to upload a video"
+              isLoading={isPostsLoading || isLatestPostsLoading}
+            />
           </View>
         )}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
